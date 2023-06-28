@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Recherche | Hyndra Deplacement</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Désactive le défilement horizontal */
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .left {
+            flex: 1;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        
+        .right {
+            flex: 2;
+            background-color: #eaeaea;
+            padding: 20px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+          }
+          
+          pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+          }
+        
+        @media only screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .left, .right {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <!-- Formulaire de recherche -->
+            
+            <form action="" method = "POST">
+                <!-- Votre formulaire ici -->
+                {% csrf_token %}
+                {{form.as_p}}
+                <input type="submit" class = "w3-btn w3-teal" value="rechercher">
+            </form>
+            <h3>{{ type }}<h3><br>
+            <h3>{{ nom }}</h3>
+        </div>
+        <div class="right">
+            <!-- Carte -->
+            <div style="height: 500px;">
+                <!-- Contenu de la carte ici -->
+                {{ carte|safe }} 
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Exemple de données JSON
+        var jsonData ={{data}}
+        
+        // Conversion de l'objet JSON en chaîne de caractères formatée
+        var jsonStr = JSON.stringify(jsonData, null, 2);
+        
+        // Affichage du JSON dans la balise <pre>
+        document.getElementById("json-output").textContent = jsonStr;
+      </script>
+</body>
+</html>

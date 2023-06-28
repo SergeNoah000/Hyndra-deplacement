@@ -60,6 +60,12 @@ def index1(request):
 import requests
 from django.shortcuts import render
 import folium
+from .models import *
+from .form import *
+import osmnx as ox
+import networkx as nx
+from geopy.geocoders import Nominatim
+from geopy import distance
 
 def get_public_ip():
     response = requests.get('https://api.ipify.org?format=json')
@@ -79,10 +85,15 @@ def get_location(ip):
         return None, None
 
 def index(request):
+    ip = ""
     # Obtenir l'adresse IP publique
-    ip = get_public_ip()
+    if request.method == "POST"  :
+        ip = request.POST.get('ip')
+    else:
+        ip = get_public_ip()
     print("L'adresse ip est :", ip)
 
+    print(ip, "\n\n")
     # Obtenir la latitude et la longitude de l'adresse IP
     lat, lon = get_location(ip)
 
@@ -99,3 +110,152 @@ def index(request):
 
     # Passer le HTML de la carte au template
     return render(request, 'base.html', {'carte': map_html})
+
+
+
+
+
+def recherche_lieu(request):
+    if request.method == 'POST':
+        form = LieuForm(request.POST)
+        if form.is_valid():
+            nom_lieu = form.cleaned_data['nom']
+            
+            # Effectuer une requête de géocodage à l'API de Nominatim d'OpenStreetMap
+            response = requests.get(f'https://nominatim.openstreetmap.org/search?q={nom_lieu}&format=json')
+            data = response.json()
+            
+            if data:
+                lieu = data[0]
+                print(data)
+                
+                # Extraire les coordonnées géographiques du lieu
+                latitude = float(lieu['lat'])
+                longitude = float(lieu['lon'])
+                nom = lieu['display_name']
+                typee = lieu['type']
+                
+                # Enregistrer le lieu dans la base de données
+                lieu_obj = Lieu(nom_de_recherche=nom_lieu, nom=nom , latitude=latitude, longitude=longitude)
+                lieu_obj.save()
+                
+                # Créer une carte Folium centrée sur la position obtenue
+                map = folium.Map(location=[latitude, longitude], zoom_start=10)
+
+                # Ajouter un marqueur à la position obtenue
+                folium.Marker([latitude, longitude], popup=nom).add_to(map)
+
+                # Convertir la carte en HTML
+                map_html = map._repr_html_()
+
+                # Passer le HTML de la carte au template
+                return render(request, 'test.html', {'carte': map_html, 'nom':nom, 'type':type})
+                
+    
+    else:
+        print('Ok ok ok  ok \n')
+        ip = get_public_ip()
+        print("L'adresse ip est :", ip)
+
+        # Obtenir la latitude et la longitude de l'adresse IP
+        lat, lon = get_location(ip)
+
+        print('Coordonnees geographique:', lon, lat)
+
+        # Créer une carte Folium centrée sur la position obtenue
+        map = folium.Map(location=[lat, lon], zoom_start=10)
+
+        # Ajouter un marqueur à la position obtenue
+        folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+
+        # Convertir la carte en HTML
+        map = map._repr_html_()
+
+        form = LieuForm()
+
+    context = {'form': form, "carte":map }
+    return render(request, 'test.html', context)
+
+
+
+
+def calculate_distance(origin, destination):
+    # Utiliser geopy pour obtenir les coordonnées géographiques des lieux
+    geolocator = Nominatim(user_agent="my-app")
+    location_origin = geolocator.geocode(origin)
+    location_destination = geolocator.geocode(destination)
+
+    if location_origin is None or location_destination is None:
+        return None
+
+    coords_origin = (location_origin.latitude, location_origin.longitude)
+    coords_destination = (location_destination.latitude, location_destination.longitude)
+
+    # Utiliser osmnx pour récupérer les données du graphe de rue depuis OpenStreetMap
+    graph = ox.graph_from_point(coords_origin, network_type='all')
+
+    # Obtenir les nœuds les plus proches des coordonnées de départ et d'arrivée
+    origin_node = ox.distance.nearest_nodes(graph, coords_origin[1], coords_origin[0])
+    destination_node = ox.distance.nearest_nodes(graph, coords_destination[1], coords_destination[0])
+
+    # Calculer le meilleur itinéraire entre les nœuds de départ et d'arrivée
+    route = nx.shortest_path(graph, origin_node, destination_node, weight='length')
+
+    # Calculer la distance totale de l'itinéraire
+    total_distance = sum(ox.utils_graph.get_route_edge_attributes(graph, route, 'length'))
+
+    return route, total_distance
+
+
+def search(request):
+    if request.method == 'POST':
+        form_data = request.POST
+        origin = form_data.get('nom_depart')
+        destination = form_data.get('nom_arrive')
+
+        route, distance = calculate_distance(origin, destination)
+
+        if route is not None:
+            # Utiliser folium pour générer une carte interactive
+            map_center = [(route[0][0] + route[-1][0]) / 2, (route[0][1] + route[-1][1]) / 2]
+            m = folium.Map(location=map_center, zoom_start=12)
+
+            # Ajouter les points de départ et d'arrivée à la carte
+            folium.Marker(location=route[0], icon=folium.Icon(color='green')).add_to(m)
+            folium.Marker(location=route[-1], icon=folium.Icon(color='red')).add_to(m)
+
+            # Ajouter l'itinéraire à la carte en bleu
+            folium.PolyLine(locations=route, color='blue').add_to(m)
+
+            # Convertir la carte en HTML
+            map_html = m._repr_html_()
+
+            return render(request, 'test.html', {'distance': distance, 'carte': map_html, 'nom':origin, 'type':destination})
+        else:
+            # Gérer le cas où l'un ou les deux lieux n'ont pas pu être géocodés
+            return render(request, 'test.html')
+
+    else:
+        print('Ok ok ok  ok \n')
+        ip = get_public_ip()
+        print("L'adresse ip est :", ip)
+
+        # Obtenir la latitude et la longitude de l'adresse IP
+        lat, lon = get_location(ip)
+
+        print('Coordonnees geographique:', lon, lat)
+
+        # Créer une carte Folium centrée sur la position obtenue
+        map = folium.Map(location=[lat, lon], zoom_start=10)
+
+        # Ajouter un marqueur à la position obtenue
+        folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+
+        # Convertir la carte en HTML
+        map = map._repr_html_()
+
+        form = SearchForm()
+
+    context = {'form': form, "carte":map }
+    return render(request, 'test.html', context)
+
