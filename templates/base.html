@@ -1,0 +1,202 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{% block title %}{% endblock title %} | Hyndra Deplacement</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+<style>
+body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
+body {font-size:16px;}
+.w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
+.w3-half img:hover{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-gray w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:300px;font-weight:bold;" id="mySidebar"><br>{% block content %}
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-button w3-hide-large w3-display-topleft" style="width:100%;font-size:22px">Close Menu</a>
+  <div class="w3-container">
+    <h3 class="w3-padding-64"><b>Hyndra<br>Deplacement</b></h3>
+  </div>
+  <div class="w3-bar-block">
+    <span href="#" onclick="w3_close()" class="w3-bar-item w3-text-blue" >Bienvenue !</span> <hr>
+    <a href="#showcase" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Cherchez votre chemin </a> <hr>
+    <a href="#services" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Ou alors trouver un taxi pres de chez </a> <hr>
+    <a href="#designers" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Commander un taxi </a> <hr>
+    <a href="#packages" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Reserver un date pour unr date ?</a> <hr>
+    <a href="#contact" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Contact</a> <hr>
+  </div>
+  {% endblock content%}
+</nav>
+
+<!-- Top menu on small screens -->
+<header class="w3-container w3-top w3-hide-large w3-red w3-xlarge w3-padding">
+  <a href="javascript:void(0)" class="w3-button w3-red w3-margin-right" onclick="w3_open()">☰</a>
+  <span><b>Hyndra<br>Deplacement</b></span>
+</header>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:440px;margin-right:40px">
+
+  {{ carte|safe }} 
+<!-- End page content -->
+</div>
+
+<!-- W3.CSS Container -->
+<div class="w3-light-grey w3-container w3-padding-32" style="margin-top:75px;padding-right:58px"><p class="w3-right">Powered by <a href="https://www.w3schools.com/w3css/default.asp" title="W3.CSS" target="_blank" class="w3-hover-opacity">w3.css</a></p><br>
+<p class="w3-right">Serge Noah tout droit reserve </P></div>
+
+<script>
+// Script to open and close sidebar
+function w3_open() {
+  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById("myOverlay").style.display = "block";
+}
+ 
+function w3_close() {
+  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById("myOverlay").style.display = "none";
+}
+
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+function sendPositionToServer() {
+  // Vérifier si le navigateur supporte la géolocalisation
+  if ("geolocation" in navigator) {
+    // Fonction de succès de la géolocalisation
+    function success(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      // Créer un objet XMLHttpRequest
+      const xhr = new XMLHttpRequest();
+
+      // URL du serveur où envoyer les coordonnées
+      const url = "localhost:8000";
+
+      // Paramètres de la requête POST
+      let ip = promt("Votre adresse ip: ")
+      const params = `ip=${ip}`;
+
+      // Ouvrir une nouvelle requête POST asynchrone
+      xhr.open("POST", url, true);
+
+      // Définir le type de contenu de la requête
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // Gérer l'événement de changement d'état de la requête
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log("Données envoyées avec succès.");
+        }
+      };
+
+      // Envoyer la requête avec les paramètres
+      xhr.send(params);
+    }
+
+    // Fonction d'erreur de la géolocalisation
+    function error(err) {
+      console.warn(`Erreur de géolocalisation : ${err.message}`);
+    }
+
+    // Options de la géolocalisation
+    const options = {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 5000,
+    };
+
+    // Obtenir la position actuelle de l'utilisateur
+    navigator.geolocation.watchPosition(success, error, options);
+  } else {
+    console.warn("La géolocalisation n'est pas prise en charge par ce navigateur.");
+  }
+}
+
+// Appeler la fonction pour commencer à surveiller les changements de position
+//sendPositionToServer();
+
+sendip(){
+  // Créer un objet XMLHttpRequest
+  const xhr = new XMLHttpRequest();
+
+  // URL du serveur où envoyer les coordonnées
+  const url = "localhost:8000";
+
+  // Paramètres de la requête POST
+  let ip = prompt("Votre adresse ip: ")
+  const params = `ip=${ip}`;
+
+  // Ouvrir une nouvelle requête POST asynchrone
+  xhr.open("POST", url, true);
+
+  // Définir le type de contenu de la requête
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+  // Gérer l'événement de changement d'état de la requête
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      console.log("Données envoyées avec succès.");
+    }
+  };
+
+  // Envoyer la requête avec les paramètres
+  xhr.send(params);
+}
+
+//setInterval(sendip, 10000);
+
+// Fonction pour envoyer une requête AJAX
+function sendAjaxRequest(url, data, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      // Appel du callback avec la réponse du serveur
+      callback(xhr.responseText);
+    }
+  };
+
+  xhr.send(JSON.stringify(data));
+}
+
+// Fonction pour obtenir l'adresse IP de l'utilisateur
+function getIPAddress() {
+  // Envoi de la requête à un service tiers pour obtenir l'adresse IP
+  sendAjaxRequest('https://api.ipify.org?format=json', {}, function(response) {
+    var ipAddress = JSON.parse(response).ip;
+    alert(ipAddress);
+
+    // Envoi de l'adresse IP au serveur
+    sendAjaxRequest('/localhost:8000', { ip: ipAddress }, function(response) {
+      // Traitement de la réponse du serveur si nécessaire
+      console.log('Réponse du serveur :', response);
+    });
+  });
+}
+
+// Appel de la fonction lors du chargement de la page
+window.addEventListener('load', getIPAddress);
+
+
+</script>
+
+</body>
+</html>
