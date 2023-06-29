@@ -203,8 +203,18 @@ def calculate_distance(origin, destination):
 
     # Calculer la distance totale de l'itinéraire
     total_distance = sum(ox.utils_graph.get_route_edge_attributes(graph, route, 'length'))
+    nodes_coordinates = [graph.nodes[node_id] for node_id in route]
 
-    return route, total_distance
+
+    coordinates_list = []
+
+    for node in nodes_coordinates:
+        lon = node['y']
+        lat = node['x']
+        coordinates_list.append([lon, lat])
+    print(coordinates_list)
+
+    return coordinates_list, total_distance
 
 
 def search(request):
@@ -216,13 +226,15 @@ def search(request):
         route, distance = calculate_distance(origin, destination)
 
         if route is not None:
+            print("route:", route)
+            print("distance:", distance)
             # Utiliser folium pour générer une carte interactive
             map_center = [(route[0][0] + route[-1][0]) / 2, (route[0][1] + route[-1][1]) / 2]
             m = folium.Map(location=map_center, zoom_start=12)
 
             # Ajouter les points de départ et d'arrivée à la carte
-            folium.Marker(location=route[0], icon=folium.Icon(color='green')).add_to(m)
-            folium.Marker(location=route[-1], icon=folium.Icon(color='red')).add_to(m)
+            folium.Marker(location=route[0], icon=folium.Icon(color='green'), popup=origin).add_to(m)
+            folium.Marker(location=route[-1], icon=folium.Icon(color='red'), popup=destination).add_to(m)
 
             # Ajouter l'itinéraire à la carte en bleu
             folium.PolyLine(locations=route, color='blue').add_to(m)
