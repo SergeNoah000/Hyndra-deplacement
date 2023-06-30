@@ -66,6 +66,7 @@ import osmnx as ox
 import networkx as nx
 from geopy.geocoders import Nominatim
 from geopy import distance
+from notifications.signals import notify
 
 def get_public_ip():
     print("recuperation de l'addresse ip")
@@ -108,6 +109,10 @@ def index(request):
 
     # Convertir la carte en HTML
     map_html = map._repr_html_()
+    
+    u1 = User.objects.get(username="enfantin")
+    u2 = User.objects.get(username="sergenoah")
+    notify.send(u2, recipient=u1, verb='Salut enfantin')
 
     # Passer le HTML de la carte au template
     return render(request, 'index.html', {'carte': map_html})
