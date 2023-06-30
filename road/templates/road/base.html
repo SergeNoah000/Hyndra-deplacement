@@ -1,0 +1,214 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ma Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/w3.css' %}">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(yellow,pink,green);
+    }
+    
+    .navbar {
+      background-color: teal;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      height: 50px;
+    }
+    
+    .navbar-icon {
+      color: white;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    
+    .navbar-icon:hover {
+      color: yellow;
+    }
+    
+    .content {
+      width: calc(100% / 3); /* Modifié */
+      float: left;
+      height: 75vh;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+    
+    .map {
+      background-color: white;
+      height: 100%;
+    }
+    
+    .second-frame {
+      width: calc(2 * 100% / 3); /* Modifié */
+      float: left;
+      height: 100vh;
+      box-sizing: border-box;
+      padding: 20px;
+      background-color: lightgray;
+      display: flex; /* Ajout */
+      align-items: stretch; /* Ajout */
+    }
+    
+    .map-container {
+      flex-grow: 1; /* Ajout */
+      background-color: white;
+    }
+    
+    .form-container {
+        padding-top:40px
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      
+      .form-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      
+      .form-container button {
+        width: 100%;
+        background-color: teal;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      
+      .form-container button:hover {
+        background-color: #008080;
+      }
+
+      input[type=text]:focus,input[type=password]:focus , input[type=number]:focus  {
+        background-color: lightblue;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 1;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 10px;
+        display: none;
+    }
+    .dropdown-menu.visible {
+        display: block;
+    }
+    .notification-item {
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
+      {% block style %}{% endblock style %}
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="{% url 'road:index' %}"><i class="fas fa-map navbar-icon"></i></a>
+    <a href="{% url 'road:index' %}"><i class="fas fa-home navbar-icon"></i></a>
+    <a href="{% url 'road:detail' %}"><i class="fas fa-user navbar-icon"></i></a>
+    <a href="#notification" onclick="toggleDropdown(event)"><i class="fas fa-bell navbar-icon"></i></a>
+    <a href="#menu"><i class="fas fa-bars navbar-icon"></i></a>
+    <div id="notificationDropdown" class="dropdown-menu">
+      <!-- Liste des notifications -->
+      <div class="notification-item">Notification 1</div>
+      <div class="notification-item">Notification 2</div>
+      <div class="notification-item">Notification 3</div>
+    </div>
+  </div>
+  
+  <div class="content">
+    <div class="map">
+      <!-- Contenu de la des formulaires  ici -->
+      {% block form %}{% endblock form %}
+    </div>
+    
+    <footer style="background:linear-gradient(yellow,pink,green);; padding: 20px; text-align: center;">
+      <hr>
+      <p>
+        <a href="tel:+237653420526"><i class="fas fa-phone"></i></a>
+        <a href="https://www.facebook.com/votrePageFacebook"><i class="fab fa-facebook"></i></a>
+        <a href="https://www.instagram.com/votreCompteInstagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://t.me/votreCompteTelegram"><i class="fab fa-telegram"></i></a>
+        <a href="https://www.linkedin.com/in/votreProfilLinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/SergeNoah000"><i class="fab fa-github"></i></a>
+      </p>
+      <p>
+        Conditions d'utilisation | <a href="lienVersLaPageDeSoutien">Page de soutien</a>
+      </p>
+      <p>
+        Serge Noah &copy; Tous droits réservés
+      </p>
+      <div id="monDiv">
+        {% csrf_token  %}
+      </div>
+    </footer>
+  </div>
+  
+  <div class="second-frame">
+    <div class="map-container">
+      <!-- Contenu de la carte ici -->
+      {% block carte %}{% endblock carte %}
+    </div>
+  </div>
+
+
+  <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+  {% block navigator_location %}
+
+  
+  {% endblock navigator_location %}
+  
+
+<script>
+  // Script to open and close sidebar
+  function w3_open() {
+    document.getElementById("mySidebar").style.display = "block";
+    document.getElementById("myOverlay").style.display = "block";
+  }
+   
+  function w3_close() {
+    document.getElementById("mySidebar").style.display = "none";
+    document.getElementById("myOverlay").style.display = "none";
+  }
+  
+  // Modal Image Gallery
+  function onClick(element) {
+    document.getElementById("img01").src = element.src;
+    document.getElementById("modal01").style.display = "block";
+    var captionText = document.getElementById("caption");
+    captionText.innerHTML = element.alt;
+  }
+
+  function toggleDropdown(event) {
+    event.preventDefault();
+    var dropdown = document.getElementById('notificationDropdown');
+    dropdown.classList.toggle('visible');
+}
+
+  // Fermer le menu déroulant des notifications lorsque l'utilisateur clique en dehors
+    window.addEventListener('click', function(event) {
+      var dropdown = document.getElementById('notificationDropdown');
+      if (!event.target.closest('#notificationDropdown') &&
+          !event.target.closest('[href="#notification"]')) {
+          dropdown.classList.remove('visible');
+      }
+});
+  
+  </script>
+</body>
+</html>

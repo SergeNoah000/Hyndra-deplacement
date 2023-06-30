@@ -1,0 +1,119 @@
+
+{% extends "road/base.html" %}
+
+{% block style %}
+
+.left-section {
+    width: 66%;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+}
+
+.right-section {
+    width: 33%;
+    padding: 20px;
+    float:right
+}
+
+.profile-image {
+    float: right;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    float: right; /* Assurez-vous que la propriété float est définie sur "right" */
+    clear: right;
+}
+
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #ccc;
+}
+.section {
+display: flex;
+}
+
+.element {
+font-weight: bold;
+padding-right:6px;
+text-decoration: underline;
+}
+
+.value {
+font-family: "Roboto", sans-serif; /* Police similaire à celle de Pop!_OS */
+font-size: 1.2em; /* Taille de police légèrement plus grande que les éléments */
+}
+  
+{% endblock style %}
+
+
+{% block form %}
+
+<h2>Vos informations</h2><br>
+<div class="section">
+    <div class="left-section">
+        <p><span class="element">Login:</span><span class="value">{{ request.user.username }} </span></p>
+        <p><span class="element">Nom && Prenom:</span><span class="value">{{ request.user.last_name }}      {{ utilisateur.user.first_name }} </span></p>
+        <p><span class="element">Âge:  </span>   <span class="value">{{ utilisateur.age }}</span></p>
+    </div>
+    <div class="right-section">
+        <img src="{{ utilisateur.photo_profil.url }}" alt="Photo de profil" class="profile-image">
+    </div>
+</div><hr>
+<p><span class="element">Quartier:</span> <span class="value">{{ utilisateur.quartier }}</span></p><hr>
+<p><span class="element">Email:</span> <span class="value">{{ utilisateur.user.email }}</span></p><hr>
+<a class = "w3-btn w3-teal w3-round " style=" justify-content: center;" href="{% url 'road:update' %}">Modifier <i class="fas fa-edit navbar-icon"></i></a>
+
+
+
+{% endblock %}
+
+
+
+{% block carte %}
+
+{{ carte|safe }} 
+
+{% endblock carte %}
+
+
+{% block navigator_location %}
+
+  <script>
+    $(document).ready(function() {
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+              var lat = position.coords.latitude;
+              var lon = position.coords.longitude;
+              console.log("longitude: "+ lon+ "latitude: "+ lat);
+              // Envoyer les coordonnées au serveur Django via AJAX
+              $.ajax({
+                  url: 'reload',
+                  method: 'POST',
+                  data: {
+                      latitude: lat,
+                      longitude: lon,
+                      url:"detail"
+                  },
+                  success: function(response) {
+                      // Gestion de la réponse en cas de succès
+                      var divElement = document.querySelector('.map-container');
+                      divElement.innerHTML = response.map
+                      console.log(response);
+                  },
+                  error: function(xhr, errmsg, err) {
+                      // Gestion de l'erreur en cas d'échec de la requête AJAX
+                      console.log(errmsg);
+                  }
+              });
+          });
+      } else {
+          // Gestion de l'erreur si la géolocalisation n'est pas prise en charge.
+          console.log("La géolocalisation n'est pas prise en charge.");
+      }
+  });
+  </script>
+
+{% endblock navigator_location %}

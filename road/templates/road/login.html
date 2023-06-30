@@ -1,0 +1,62 @@
+{% extends "road/base.html" %}
+
+{% block form %}
+<div class="form-container">
+  <h2>Login</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+  </form>
+  <p>Pas encore de compte ? Enregistrez-vous <a href="{% url 'road:register' %}">ici</a></p>
+</div>
+{% endblock form %}
+
+
+{% block carte %}
+
+{{ carte|safe }} 
+
+{% endblock carte %}
+
+
+{% block navigator_location %}
+
+  <script>
+    $(document).ready(function() {
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+              var lat = position.coords.latitude;
+              var lon = position.coords.longitude;
+              console.log("longitude: "+ lon+ "latitude: "+ lat);
+              var csrfToken = $('input[name="csrfmiddlewaretoken"][id="mon_csrf_token"]').val();
+              // Envoyer les coordonnées au serveur Django via AJAX
+              $.ajax({
+                  url: 'reload',
+                  method: 'POST',
+                  data: {
+                      latitude: lat,
+                      longitude: lon,
+                      url:"login"
+
+                  },
+                  success: function(response) {
+                      // Gestion de la réponse en cas de succès
+                      var divElement = document.querySelector('.map-container');
+                      divElement.innerHTML = response.map
+                      console.log(response);
+                  },
+                  error: function(xhr, errmsg, err) {
+                      // Gestion de l'erreur en cas d'échec de la requête AJAX
+                      console.log(errmsg);
+                  }
+              });
+          });
+      } else {
+          // Gestion de l'erreur si la géolocalisation n'est pas prise en charge.
+          console.log("La géolocalisation n'est pas prise en charge.");
+      }
+  });
+  </script>
+
+{% endblock navigator_location %}
