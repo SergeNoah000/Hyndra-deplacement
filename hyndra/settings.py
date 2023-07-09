@@ -132,3 +132,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media/')
 
 
 LOGIN_URL = 'road:login'
+
+DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}

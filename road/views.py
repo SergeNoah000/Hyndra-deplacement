@@ -69,7 +69,7 @@ from geopy import distance
 from notifications.signals import notify
 
 def get_public_ip():
-    print("recuperation de l'addresse ip")
+    print("recuperation de l'addresse ip\n")
     response = requests.get('http://ip.jsontest.com/')
     data = response.json()
     ip = data['ip']
@@ -80,11 +80,14 @@ def get_location(ip):
     response = requests.get(url)
     data = response.json()
     if data['status'] == 'success':
+        city = data['city']
+        regionName = data['regionName']
+        country = data['country']
         lat = data['lat']
         lon = data['lon']
-        return lat, lon
+        return f"{city}, {regionName}, {country}", lat, lon
     else:
-        return None, None
+        return None, None, None
 
 def index(request):
     ip = ""
@@ -92,27 +95,34 @@ def index(request):
     if request.method == "POST"  :
         ip = request.POST.get('ip')
     else:
-        ip = get_public_ip()
-    print("L'adresse ip est :", ip)
+        try:
+            ip = get_public_ip()
+        except:
+            ConnectionError ()
+            return render(request, 'index.html', {'carte': "<H3 style='padding:20%'>PAS DE CONNECTION INTERNET, VEILLEZ VOUS CONNECTER!!</H3>"})
 
-    print(ip, "\n\n")
+
+    print("L'adresse ip  publique du server est :", ip)
+
+    
     # Obtenir la latitude et la longitude de l'adresse IP
-    lat, lon = get_location(ip)
+    lieu, lat, lon = get_location(ip)
 
-    print('Coordonnees geographique:', lon, lat)
+    print('Coordonnees geographique:', lon, lat, lieu)
 
     # Créer une carte Folium centrée sur la position obtenue
-    map = folium.Map(location=[lat, lon], zoom_start=10)
+    map = folium.Map(location=[lat, lon], zoom_start=15)
 
     # Ajouter un marqueur à la position obtenue
-    folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+    folium.Marker([lat, lon], popup=f'Position actuelle:<br> {lieu}').add_to(map)
 
     # Convertir la carte en HTML
     map_html = map._repr_html_()
     
     u1 = User.objects.get(username="enfantin")
     u2 = User.objects.get(username="sergenoah")
-    notify.send(u2, recipient=u1, verb='Salut enfantin')
+    u3 = User.objects.get(username="bipbip")
+    notify.send(u2, recipient=u3, verb='Salut bip, c\'est pour le test')
 
     # Passer le HTML de la carte au template
     return render(request, 'index.html', {'carte': map_html})
@@ -161,21 +171,23 @@ def recherche_lieu(request):
     else:
         print('pas de lieu donne ok \n Recherche des coordonnees en fonction de l\'ip :')
         ip = get_public_ip()
-        print("L'adresse ip est :", ip)
+        print("L'adresse ip  publique du server est :", ip)
 
+    
         # Obtenir la latitude et la longitude de l'adresse IP
-        lat, lon = get_location(ip)
+        lieu, lat, lon = get_location(ip)
 
-        print('Coordonnees geographique:', lon, lat)
+        print('Coordonnees geographique:', lon, lat, lieu)
 
         # Créer une carte Folium centrée sur la position obtenue
-        map = folium.Map(location=[lat, lon], zoom_start=10)
+        map = folium.Map(location=[lat, lon], zoom_start=15)
 
         # Ajouter un marqueur à la position obtenue
-        folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+        folium.Marker([lat, lon], popup=f'Position actuelle:<br> {lieu}').add_to(map)
 
         # Convertir la carte en HTML
-        map = map._repr_html_()
+        map_html = map._repr_html_()
+
 
         form = LieuForm()
 
@@ -195,21 +207,22 @@ def recherche_taxi(request):
     else:
         print('pas de lieu donne ok \n Recherche des coordonnees en fonction de l\'ip :')
         ip = get_public_ip()
-        print("L'adresse ip est :", ip)
+        print("L'adresse ip  publique du server est :", ip)
 
+    
         # Obtenir la latitude et la longitude de l'adresse IP
-        lat, lon = get_location(ip)
+        lieu, lat, lon = get_location(ip)
 
-        print('Coordonnees geographique:', lon, lat)
+        print('Coordonnees geographique:', lon, lat, lieu)
 
         # Créer une carte Folium centrée sur la position obtenue
-        map = folium.Map(location=[lat, lon], zoom_start=10)
+        map = folium.Map(location=[lat, lon], zoom_start=15)
 
         # Ajouter un marqueur à la position obtenue
-        folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+        folium.Marker([lat, lon], popup=f'Position actuelle:<br> {lieu}').add_to(map)
 
         # Convertir la carte en HTML
-        map = map._repr_html_()
+        map_html = map._repr_html_()
 
         form = TaxiCommandForm()
 
@@ -294,21 +307,22 @@ def search(request):
         print('pas de lieu donne ok \n Recherche des coordonnees en fonction de l\'ip :')
 
         ip = get_public_ip()
-        print("L'adresse ip est :", ip)
+        prprint("L'adresse ip  publique du server est :", ip)
 
+    
         # Obtenir la latitude et la longitude de l'adresse IP
-        lat, lon = get_location(ip)
+        lieu, lat, lon = get_location(ip)
 
-        print('Coordonnees geographique:', lon, lat)
+        print('Coordonnees geographique:', lon, lat, lieu)
 
         # Créer une carte Folium centrée sur la position obtenue
-        map = folium.Map(location=[lat, lon], zoom_start=10)
+        map = folium.Map(location=[lat, lon], zoom_start=15)
 
         # Ajouter un marqueur à la position obtenue
-        folium.Marker([lat, lon], popup='Position actuelle').add_to(map)
+        folium.Marker([lat, lon], popup=f'Position actuelle:<br> {lieu}').add_to(map)
 
         # Convertir la carte en HTML
-        map = map._repr_html_()
+        map_html = map._repr_html_()
 
         form = SearchForm()
 

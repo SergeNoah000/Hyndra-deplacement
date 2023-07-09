@@ -85,6 +85,7 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
+
       }
       
       .form-container button:hover {
@@ -95,17 +96,18 @@
         background-color: lightblue;
       }
 
-      .dropdown-menu {
-        position: absolute;
+      .live_notify_list {
+        position: relative;
         top: 100%;
         right: 0;
-        z-index: 1;
-        background-color: #fff;
+        z-index: 100;
+        background-color: gray;
         border: 1px solid #ddd;
         padding: 10px;
         display: none;
+        list-style:none;
     }
-    .dropdown-menu.visible {
+    .dropdown.visible {
         display: block;
     }
     .notification-item {
@@ -113,23 +115,36 @@
         border-bottom: 1px solid #ddd;
     }
 
-      {% block style %}{% endblock style %}
-  </style>
+      {% block style %}{% endblock style %}</style>
+      <style>
+        .active {
+            display:float;
+        }
+    </style>
+    <script>
+        function changerStyle(element) {
+          if (document.getElementsByClassName("live_notify_list")[0].style.display == "block" )
+          {
+            document.getElementsByClassName("live_notify_list")[0].style.display = "none" ;
+            console.log("c'est defait");
+          }else{
+            document.getElementsByClassName("live_notify_list")[0].style.display = "block" ;
+            console.log("c'est fait");
+          }
+            
+        }
+    </script>
+  
 </head>
 <body>
   <div class="navbar">
     <a href="{% url 'road:index' %}"><i class="fas fa-map navbar-icon"></i></a>
     <a href="{% url 'road:index' %}"><i class="fas fa-home navbar-icon"></i></a>
     <a href="{% url 'road:detail' %}"><i class="fas fa-user navbar-icon"></i></a>
-    <a href="#notification"> <i class="fas fa-bell navbar-icon">{% live_notify_badge badge_class="w3-red w3-round-large w3-padding" %}</i></a>
+    <a href="#notification" onclick="changerStyle(this)"> <i class="fas fa-bell navbar-icon">{% live_notify_badge badge_class="w3-red w3-round-large w3-padding" %}</i></a>
     {% live_notify_list %}
-    <a href="#menu"><i class="fas fa-bars navbar-icon"></i></a>
-    <div id="notificationDropdown" class="dropdown-menu">
-      <!-- Liste des notifications -->
-      <div class="notification-item">Notification 1</div>
-      <div class="notification-item">Notification 2</div>
-      <div class="notification-item">Notification 3</div>
-    </div>
+    <a href="#menu" ><i class="fas fa-bars navbar-icon"></i></a>
+    
    
   </div>
   
@@ -191,28 +206,21 @@
     document.getElementById("myOverlay").style.display = "none";
   }
   
-  // Modal Image Gallery
-  function onClick(element) {
-    document.getElementById("img01").src = element.src;
-    document.getElementById("modal01").style.display = "block";
-    var captionText = document.getElementById("caption");
-    captionText.innerHTML = element.alt;
-  }
-
-  function toggleDropdown(event) {
-    event.preventDefault();
-    var dropdown = document.getElementById('notificationDropdown');
-    dropdown.classList.toggle('visible');
-}
+var  te = document.getElementById('test1');
+      te.addEventListener('click', function(event) {
+      var test = document.getElementById('test');
+          test.style = "position: relative;top: 100%;right: 0;z-index: 100;background-color: gray;border: 1px solid #ddd;padding: 10px;display: float;"
+      });
+  
 
   // Fermer le menu déroulant des notifications lorsque l'utilisateur clique en dehors
-   /* window.addEventListener('click', function(event) {
+    window.addEventListener('click', function(event) {
       var dropdown = document.getElementById('notificationDropdown');
       if (!event.target.closest('#notificationDropdown') &&
           !event.target.closest('[href="#notification"]')) {
           dropdown.classList.remove('visible');
       }
-});*/
+});
   
   </script>
 </body>
