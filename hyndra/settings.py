@@ -25,7 +25,9 @@ SECRET_KEY = 'xeu@wyy8dmxo-v!&ui)-z&$60#li&s_tf8ok-^j#=+&x5y9i#('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'hyndra-deplacement.onrender.com'
+]
 
 
 # Application definition
